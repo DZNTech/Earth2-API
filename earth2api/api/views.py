@@ -1,3 +1,5 @@
+import os
+
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework_api_key.models import APIKey
 from rest_framework.decorators import api_view,permission_classes
@@ -15,7 +17,7 @@ from selenium.webdriver.common.keys import Keys
 
 from .scrapper import scrape_settings,scrape_properties
 from django.conf import settings
-import os
+
 
 @api_view(["POST"])
 def get_api_key(request):
@@ -34,13 +36,12 @@ def get_api_key(request):
 @api_view(["POST"])
 @permission_classes([HasAPIKey])
 def login(request):
-    #try:
+    try:
         selenium=None
         key=request.META['HTTP_AUTHORIZATION']
         user_email = request.data['email']
         user_password=request.data['password']
-        print(settings.CHROMEDRIVER_PATH)
-        print(settings.CHROME_BIN)
+
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-dev-shm-usage")
@@ -48,7 +49,6 @@ def login(request):
         chrome_options.binary_location = settings.CHROME_BIN
         selenium = webdriver.Chrome(executable_path=settings.CHROMEDRIVER_PATH, chrome_options=chrome_options)
 
-        #selenium = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=chrome_options)
         selenium.get('https://app.earth2.io/login/auth0')
 
         email = selenium.find_element_by_id('username')
@@ -76,7 +76,7 @@ def login(request):
         selenium.close()
         return Response({"data": setting_json},status=status.HTTP_200_OK)
     
-    #except:
+    except:
         if selenium:
             selenium.close()
         return Response({"error":"Something went wrong"},status=status.HTTP_504_GATEWAY_TIMEOUT)
@@ -119,9 +119,14 @@ def properties(request):
         key=request.META['HTTP_AUTHORIZATION']
         user_id = request.data['user_id']
         current_page = request.data['current_page']
-        
-        selenium = webdriver.Chrome(ChromeDriverManager().install())
-        #selenium = webdriver.Chrome()
+
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.binary_location = settings.CHROME_BIN
+        selenium = webdriver.Chrome(executable_path=settings.CHROMEDRIVER_PATH, chrome_options=chrome_options)
+
         url = f'https://app.earth2.io/#profile/{user_id}'
         
         selenium.get(url)
@@ -131,7 +136,9 @@ def properties(request):
             element_present = EC.presence_of_element_located((By.XPATH, f"//ul[@class='pagination']//a[@data-argument={current_page}]"))
             WebDriverWait(selenium, timeout).until(element_present)
         except TimeoutException:
-            print("Timed out waiting for page to load")
+            selenium.close()
+            properties_json["error"]="Timed out waiting for page to load"
+            return Response( properties_json,status=status.HTTP_408_REQUEST_TIMEOUT)
         selenium.find_element_by_xpath(f"//ul[@class='pagination']//a[@data-argument={current_page}]").click()
         
         tag = selenium.find_element_by_xpath("//div[@class='card ' and position()=1]//a")
