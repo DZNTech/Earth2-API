@@ -33,7 +33,7 @@ def get_api_key(request):
 @api_view(["POST"])
 @permission_classes([HasAPIKey])
 def login(request):
-    try:
+    #try:
         selenium=None
         key=request.META['HTTP_AUTHORIZATION']
         user_email = request.data['email']
@@ -74,7 +74,7 @@ def login(request):
         selenium.close()
         return Response({"data": setting_json},status=status.HTTP_200_OK)
     
-    except:
+    #except:
         if selenium:
             selenium.close()
         return Response({"error":"Something went wrong"},status=status.HTTP_504_GATEWAY_TIMEOUT)
