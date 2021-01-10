@@ -44,9 +44,9 @@ def login(request):
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        #selenium = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+        selenium = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
 
-        selenium = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=chrome_options)
+        #selenium = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=chrome_options)
         selenium.get('https://app.earth2.io/login/auth0')
 
         email = selenium.find_element_by_id('username')
@@ -108,6 +108,11 @@ def wait_for_ajax(driver,tag):
 @api_view(["POST"])
 @permission_classes([HasAPIKey])
 def properties(request):
+    properties_json={
+        "status": True,
+        "current_page":"",
+        "page_count":""
+    }
     try:
         key=request.META['HTTP_AUTHORIZATION']
         user_id = request.data['user_id']
@@ -116,11 +121,7 @@ def properties(request):
         selenium = webdriver.Chrome(ChromeDriverManager().install())
         #selenium = webdriver.Chrome()
         url = f'https://app.earth2.io/#profile/{user_id}'
-        properties_json={
-            "status": True,
-            "current_page":current_page,
-            "page_count":""
-        }
+        
         selenium.get(url)
         
         timeout = 5
@@ -140,6 +141,7 @@ def properties(request):
         error,properties_list_json = scrape_properties(html)
         properties_json["data"]=properties_list_json
         properties_json["page_count"]=page_count
+        properties_json["current_page"] = current_page
         if error:
             properties_json["status"]=False
             selenium.close()
