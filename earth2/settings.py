@@ -23,7 +23,7 @@ CHROMEDRIVER_PATH = os.environ.get("CHROMEDRIVER_PATH")
 SECRET_KEY = 'c-3=ld89+9%du&!yey)b$*(%#&7&n7fdknzw(2bibxpml__e&-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['earth2api.herokuapp.com']
 
