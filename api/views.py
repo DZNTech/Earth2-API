@@ -14,6 +14,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 
 from .scrapper import scrape_settings,scrape_properties
+from django.conf import settings
 import os
 
 @api_view(["POST"])
@@ -38,13 +39,14 @@ def login(request):
         key=request.META['HTTP_AUTHORIZATION']
         user_email = request.data['email']
         user_password=request.data['password']
-
+        print(settings.CHROMEDRIVER_PATH)
+        print(settings.CHROME_BIN)
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-        selenium = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+        chrome_options.binary_location = settings.CHROME_BIN
+        selenium = webdriver.Chrome(executable_path=settings.CHROMEDRIVER_PATH, chrome_options=chrome_options)
 
         #selenium = webdriver.Chrome(ChromeDriverManager().install(),chrome_options=chrome_options)
         selenium.get('https://app.earth2.io/login/auth0')
