@@ -25,7 +25,7 @@ SECRET_KEY = 'c-3=ld89+9%du&!yey)b$*(%#&7&n7fdknzw(2bibxpml__e&-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://selenium69.herokuapp.com/','127.0.0.1']
+ALLOWED_HOSTS = ['https://selenium69.herokuapp.com/','127.0.0.1','selenium69.herokuapp.com']
 
 
 # Application definition
